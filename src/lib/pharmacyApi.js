@@ -1,16 +1,17 @@
 import axios from "axios";
 
-const API_URL = "/api/pharmacy"; // CORRECT
+// Use environment variable for backend URL
+const API_URL = import.meta.env.VITE_API_URL_PHARMACY;
 
 // Create a new pharmacy item
 export const createPharmacy = async (data) => {
-  const res = await axios.post(API_URL, data);  // <-- remove trailing slash
+  const res = await axios.post(API_URL, data);
   return res.data;
 };
 
 // Get all pharmacy items
 export const getAllPharmacies = async () => {
-  const res = await axios.get(API_URL);  // <-- remove trailing slash
+  const res = await axios.get(API_URL);
   return res.data;
 };
 
@@ -37,4 +38,3 @@ export const getLowStockPharmacies = async () => {
   const res = await axios.get(`${API_URL}/low-stock`);
   return res.data;
 };
-
