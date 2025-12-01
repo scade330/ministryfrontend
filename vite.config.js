@@ -3,14 +3,21 @@ import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// https://vite.dev/config/
+// Choose API depending on mode/environment
+const API_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://clinic-backend-flax.vercel.app"   // API1 from your domain
+    : "http://localhost:8000"             // Local backend for dev
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server:{    
-    proxy:{
-      "/api": "http://localhost:8000",
-    }
+
+  server: {
+    proxy: {
+      "/api": API_URL,
+    },
   },
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
