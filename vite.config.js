@@ -6,8 +6,8 @@ import { defineConfig } from "vite"
 // Choose API depending on mode/environment
 const API_URL =
   process.env.NODE_ENV === "production"
-    ? "https://clinic-backend-flax.vercel.app"   // API1 from your domain
-    : "http://localhost:8000"             // Local backend for dev
+    ? "https://clinic-backend-flax.vercel.app/"   // API1 from your domain
+    : "https://clinic-backend-flax.vercel.app/"             // Local backend for dev
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
