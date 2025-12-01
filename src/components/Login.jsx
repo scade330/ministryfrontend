@@ -32,7 +32,7 @@ export default function Login() {
     event.preventDefault();
     setLoading(true);
     try {
-      const { data } = await axios.post("/api/user/login-user", formData);
+      const { data } = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/login-user`, formData);
       toast.success("Successfully logged in!");
       login(data.user, data.expiresIn);
       navigate("/center");
