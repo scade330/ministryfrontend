@@ -18,17 +18,15 @@ export default function Header() {
     <>
       {/* ⚕️ Navigation Bar - Clean, High Contrast, and Professional */}
       <header className="w-full bg-white text-gray-800 border-b-4 border-blue-500/10 shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-          {/* Logo / Clinic Name - Sharp and Trustworthy */}
-          <Link
-            to="/"
-            className="text-4xl font-black text-blue-800 tracking-tighter hover:text-blue-900 transition duration-300"
-          >
-            SAHLAN <span className="text-blue-500 font-extralight">CLINIC</span>
-          </Link>
+   <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    {/* Clinic Name - Plain Text, Not a Link */}
+    <div className="text-4xl font-black text-blue-800 tracking-tighter">
+      SAHLAN <span className="text-blue-500 font-extralight">CLINIC</span>
+    </div>
 
-          {/* Dynamic Action Button - High Visibility */}
-                  </div>
+    {/* Dynamic Action Button - High Visibility */}
+    {/* (keep any other header buttons here if needed) */}
+  </div>
       </header>
 
       {/* 🏥 Home Page Content - HIGH VISIBILITY & CLINICAL DESIGN */}
