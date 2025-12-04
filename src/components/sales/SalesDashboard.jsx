@@ -11,16 +11,17 @@ import {
   fetchProfitToday,
   fetchProfitLast7Days,
   fetchProfitLast30Days,
-  deleteSale, // import the new delete function
+  deleteSale,
 } from "@/lib/salesApi.js";
 
 const DashboardCard = ({ title, value, color = "bg-indigo-500", onClick }) => (
   <div
     onClick={onClick}
-    className={`${color} text-white rounded-xl shadow-lg p-6 flex flex-col justify-between transform transition-transform duration-300 hover:scale-[1.02] cursor-pointer`}
+    className={`${color} text-white rounded-xl shadow-lg p-6 flex flex-col justify-between 
+    transition-transform duration-300 hover:scale-[1.02] cursor-pointer`}
   >
     <h3 className="text-lg font-semibold mb-4 opacity-90">{title}</h3>
-    <p className="text-4xl font-extrabold tracking-tight">{value}</p>
+    <p className="text-3xl md:text-4xl font-extrabold tracking-tight">{value}</p>
   </div>
 );
 
@@ -35,12 +36,10 @@ const SalesDashboard = () => {
     loading: true,
   });
 
-  const [filter, setFilter] = useState("today"); // today | last7 | last30
+  const [filter, setFilter] = useState("today");
   const [deleting, setDeleting] = useState(false);
 
-  // -----------------------------
-  // Load sales & profit based on filter
-  // -----------------------------
+  // Load filtered sales
   const loadFilteredData = async (filterType) => {
     try {
       let sales = [];
@@ -64,9 +63,7 @@ const SalesDashboard = () => {
     }
   };
 
-  // -----------------------------
   // Load dashboard data
-  // -----------------------------
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -98,22 +95,20 @@ const SalesDashboard = () => {
     loadData();
   }, [filter]);
 
-  // -----------------------------
   // Delete sale
-  // -----------------------------
   const handleDelete = async (saleId) => {
-    if (!window.confirm("Are you sure you want to delete this sale?")) return;
+    if (!window.confirm("Do you want to delete this sale?")) return;
 
     try {
       setDeleting(true);
-      await deleteSale(saleId); // Use axios call with backend URL
+      await deleteSale(saleId);
 
-      // Refresh filtered data
-      const refreshedData = await loadFilteredData(filter);
+      const refreshed = await loadFilteredData(filter);
+
       setData((prev) => ({
         ...prev,
-        sales: refreshedData.sales,
-        totalProfit: refreshedData.totalProfit,
+        sales: refreshed.sales,
+        totalProfit: refreshed.totalProfit,
       }));
     } catch (error) {
       console.error(error);
@@ -131,13 +126,13 @@ const SalesDashboard = () => {
     );
 
   return (
-    <div className="p-4 sm:p-8 bg-gray-50 min-h-screen space-y-12">
-      <h2 className="text-4xl font-extrabold text-gray-900 border-b pb-4">
+    <div className="p-4 sm:p-6 lg:p-10 bg-gray-50 min-h-screen space-y-10">
+      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 border-b pb-4">
         Pharmacy Sales Dashboard 🚀
       </h2>
 
       {/* Filter Buttons */}
-      <div className="flex space-x-4 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6">
         {[
           { label: "Today", value: "today" },
           { label: "Last 7 Days", value: "last7" },
@@ -145,8 +140,10 @@ const SalesDashboard = () => {
         ].map((btn) => (
           <button
             key={btn.value}
-            className={`px-4 py-2 rounded-lg ${
-              filter === btn.value ? "bg-indigo-600 text-white" : "bg-gray-200"
+            className={`px-4 py-2 rounded-lg text-sm md:text-base font-medium transition ${
+              filter === btn.value
+                ? "bg-indigo-600 text-white shadow"
+                : "bg-gray-200 text-gray-700"
             }`}
             onClick={() => setFilter(btn.value)}
           >
@@ -156,7 +153,7 @@ const SalesDashboard = () => {
       </div>
 
       {/* Top Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <DashboardCard
           title="Total Profit"
           value={`$${data.totalProfit.toFixed(2)}`}
@@ -177,9 +174,9 @@ const SalesDashboard = () => {
         />
       </div>
 
-      {/* Filtered Sales Table */}
+      {/* Sales Table */}
       <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 overflow-x-auto">
-        <h3 className="text-2xl font-bold mb-4 text-gray-800">
+        <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">
           📝 Sales (
           {filter === "today"
             ? "Today"
@@ -188,46 +185,52 @@ const SalesDashboard = () => {
             : "Last 30 Days"}
           )
         </h3>
-        <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                Item Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                Quantity Sold
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                Profit
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {data.sales.map((sale) => (
-              <tr key={sale._id} className="hover:bg-gray-50 transition duration-150">
-                <td className="px-6 py-4 font-medium text-gray-900">{sale.itemName}</td>
-                <td className="px-6 py-4">{sale.quantitySold}</td>
-                <td className="px-6 py-4">${sale.profit.toFixed(2)}</td>
-                <td className="px-6 py-4">{new Date(sale.createdAt).toLocaleDateString()}</td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => handleDelete(sale._id)}
-                    disabled={deleting}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
-                </td>
+
+        <div className="min-w-full">
+          <table className="w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50 text-xs md:text-sm">
+              <tr>
+                {["Item Name", "Quantity", "Profit", "Date", "Action"].map(
+                  (header) => (
+                    <th
+                      key={header}
+                      className="px-4 py-3 text-left font-semibold uppercase tracking-wider text-gray-600"
+                    >
+                      {header}
+                    </th>
+                  )
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="bg-white divide-y divide-gray-100 text-sm md:text-base">
+              {data.sales.map((sale) => (
+                <tr
+                  key={sale._id}
+                  className="hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-4 py-3 font-medium text-gray-900">
+                    {sale.itemName}
+                  </td>
+                  <td className="px-4 py-3">{sale.quantitySold}</td>
+                  <td className="px-4 py-3">${sale.profit.toFixed(2)}</td>
+                  <td className="px-4 py-3">
+                    {new Date(sale.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleDelete(sale._id)}
+                      disabled={deleting}
+                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
