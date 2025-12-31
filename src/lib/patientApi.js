@@ -4,9 +4,9 @@ import axios from "axios";
 // Axios instance with cookies
 // ------------------------------
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/patientsClinic2`,
+  baseURL: `${__API_URL__}/api/patientsClinic2`,
   headers: { "Content-Type": "application/json" },
-  withCredentials: true, // send JWT cookie
+  withCredentials: true, // send JWT cookie if backend supports it
 });
 
 // ---------------- CREATE ----------------
@@ -16,7 +16,7 @@ export const createPatient = async (data) => {
     return res.data;
   } catch (error) {
     console.error("Create patient error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -27,7 +27,7 @@ export const getAllPatients = async () => {
     return res.data;
   } catch (error) {
     console.error("Get all patients error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -38,7 +38,7 @@ export const getPatientById = async (id) => {
     return res.data;
   } catch (error) {
     console.error("Get patient by ID error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -49,7 +49,7 @@ export const getPatientByPhone = async (phone) => {
     return res.data;
   } catch (error) {
     console.error("Get patient by phone error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -60,7 +60,7 @@ export const updatePatient = async (id, data) => {
     return res.data;
   } catch (error) {
     console.error("Update patient error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -71,7 +71,7 @@ export const deletePatient = async (id) => {
     return res.data;
   } catch (error) {
     console.error("Delete patient error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -82,7 +82,7 @@ export const addTreatment = async (patientId, treatment) => {
     return res.data;
   } catch (error) {
     console.error("Add treatment error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -92,7 +92,7 @@ export const deleteTreatment = async (patientId, index) => {
     return res.data;
   } catch (error) {
     console.error("Delete treatment error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -103,7 +103,7 @@ export const addVaccination = async (patientId, vaccination) => {
     return res.data;
   } catch (error) {
     console.error("Add vaccination error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -113,7 +113,7 @@ export const deleteVaccination = async (patientId, index) => {
     return res.data;
   } catch (error) {
     console.error("Delete vaccination error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 
@@ -124,6 +124,6 @@ export const getPatientsByProviderType = async (type) => {
     return res.data;
   } catch (error) {
     console.error("Get patients by provider type error:", error.response?.data ?? error.message);
-    throw error;
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
