@@ -9,7 +9,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
@@ -17,41 +16,28 @@ import { useUser } from "../hooks/useUser";
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const { login, user } = useUser();
+  const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
-    if (user) navigate("/center");
+    if (user) navigate("/center"); // redirect if already logged in
   }, [user, navigate]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { data } = await axios.post("/api/user/login-user", formData, {
-        withCredentials: true, // cookies enabled
-      });
-
+      const loggedInUser = await login(formData); // uses correct backend URL
       toast.success("Successfully logged in!");
-      login(data.user || data); // store user in context
       navigate("/center");
     } catch (err) {
-      if (err.response) {
-        toast.error(err.response?.data?.message || "Login failed");
-        console.error("Backend error:", err.response);
-      } else if (err.request) {
-        toast.error("No response from server");
-        console.error("No response:", err.request);
-      } else {
-        toast.error("Login error");
-        console.error("Error:", err.message);
-      }
+      if (err.response) toast.error(err.response?.data?.message || "Login failed");
+      else toast.error("Login error: No response from server");
+      console.error("Login error:", err.response || err);
     } finally {
       setLoading(false);
     }
@@ -66,7 +52,7 @@ export default function Login() {
             Welcome Back!
           </h1>
           <p className="text-xl text-white/90 font-light">
-            Login to access your dashboard and manage resources efficiently. 
+            Login to access your dashboard and manage resources efficiently.
           </p>
           <div className="mt-6">
             <Button
@@ -126,7 +112,7 @@ export default function Login() {
                     disabled={loading}
                     className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-pink-500/50 hover:from-purple-700 hover:to-pink-700 hover:scale-[1.02] transition-all duration-300 text-xl tracking-wider uppercase"
                   >
-                    {loading ? "Initializing..." : "Login"}
+                    {loading ? "Logging in..." : "Login"}
                   </Button>
                 </div>
               </form>
