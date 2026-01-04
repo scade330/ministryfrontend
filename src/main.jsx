@@ -8,7 +8,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import IntroPage from './pages/IntroPage.jsx';
 import CenterPage from './pages/CenterPage.jsx';
-import Dashboard from './pages/Dashboard.jsx'
+import Dashboard from '../src/pages/Dashboard.jsx'
 
 import { UserProvider } from './hooks/useUser.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
