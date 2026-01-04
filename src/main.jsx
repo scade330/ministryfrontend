@@ -1,83 +1,45 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import LoginPage from './pages/LoginPage.jsx'
-import RegisterPage from './pages/RegisterPage.jsx'
-import { Toaster } from 'react-hot-toast'
-import { UserProvider } from './hooks/useUser.jsx'
-import CenterPage from './pages/CenterPage.jsx'
-import ReportPage from './pages/ReportPage.jsx'
-import IntroPage from './pages/IntroPage.jsx'
-import AppointnmentViewPage from './pages/patient/AppointmentViewPage.jsx'
-import CreatePatient from './pages/patient/CreatePatient.jsx'
-import PatientListPage from "./pages/patient/PatientListPage.jsx"
-import PatientTransferPage from './pages/patient/PatientlistTransferPage.jsx'
+import App from './App.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import IntroPage from './pages/IntroPage.jsx';
+import CenterPage from './pages/CenterPage.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
+import { UserProvider } from './hooks/useUser.jsx';
+import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      {
-        path: "/regsiter",
-        element: <RegisterPage />
+      { path: "register", element: <RegisterPage /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "intro", element: <IntroPage /> },
+      { path: "center", element: <CenterPage /> },
+      { 
+        path: "dashboard", 
+        element: (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        )
       },
-        {
-        path: "/login",
-        element: <LoginPage />
-      },
-       {
-        path: "/create",
-        element: <CreatePatient />
-      },
-       {
-        path: "/intro",
-        element: <IntroPage />
-      },
-       {
-        path: "/patients",
-        element: <PatientListPage />
-      },
-       {
-        path: "/center",
-        element: <CenterPage />
-      }
-   ,
-    
-    
-   
-       {
-        path: "/report",
-        element: <ReportPage />
-      },
-   
-       {
-        path: "/appointment",
-        element: <AppointnmentViewPage/>
-      },
-   {
-        path: "/transfer",
-        element: <PatientTransferPage/>
-      },
-
-   
-      
+      { path: "*", element: <LoginPage /> } // fallback
     ]
   }
-])
+]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-<UserProvider>
-
-    <Toaster/>
-  <RouterProvider router={router} />
-
-</UserProvider>
-
- </React.StrictMode>,
-)
+    <UserProvider>
+      <Toaster />
+      <RouterProvider router={router} />
+    </UserProvider>
+  </React.StrictMode>
+);

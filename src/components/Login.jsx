@@ -1,120 +1,101 @@
-import React, { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import React, { useState, useEffect, useCallback } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
+import { Mail, Key, LogIn, TrendingUp, Users } from "lucide-react";
 
-export default function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+const AVAILABLE_ROLES = ["User", "Staff", "Management", "Admin"];
+
+export default function LoginPage() {
+  const [formData, setFormData] = useState({ email: "", password: "", role: "User" });
   const [loading, setLoading] = useState(false);
-  const { login, user } = useUser();
   const navigate = useNavigate();
+  const { login, user } = useUser();
 
-  useEffect(() => {
-    if (user) navigate("/center"); // redirect if already logged in
-  }, [user, navigate]);
+  useEffect(() => { if (user) navigate("/dashboard", { replace: true }); }, [user, navigate]);
 
-  const handleInputChange = (e) =>
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+  const handleInputChange = useCallback((e) => {
+    setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!formData.email || !formData.password) return toast.error("Email and password required");
 
+    setLoading(true);
     try {
-      const loggedInUser = await login(formData); // uses correct backend URL
-      toast.success("Successfully logged in!");
-      navigate("/center");
+      const { data } = await axios.post("http://localhost:8000/api/user/login-user", {
+        email: formData.email,
+        password: formData.password
+      }, { withCredentials: true });
+
+      if (!data.user) return toast.error("Login failed");
+
+      if (data.user.role !== formData.role) {
+        toast.error(`You cannot login as ${formData.role}`);
+        setLoading(false);
+        return;
+      }
+
+      login(data.user, data.token, data.expiresIn);
+      toast.success(`Logged in as ${data.user.role}`);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      if (err.response) toast.error(err.response?.data?.message || "Login failed");
-      else toast.error("Login error: No response from server");
-      console.error("Login error:", err.response || err);
-    } finally {
-      setLoading(false);
-    }
+      toast.error(err.response?.data?.message || err.message);
+      console.error("Login Error:", err.response?.data || err.message);
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-red-900 px-6">
-      <div className="flex flex-col md:flex-row w-full max-w-7xl bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden shadow-neon-pink">
-        
-        <div className="md:w-1/2 bg-gradient-to-br from-purple-700 via-pink-600 to-red-600 p-16 flex flex-col justify-center text-white space-y-4">
-          <h1 className="text-6xl font-extrabold mb-4 drop-shadow-2xl">
-            Welcome Back!
-          </h1>
-          <p className="text-xl text-white/90 font-light">
-            Login to access your dashboard and manage resources efficiently.
-          </p>
-          <div className="mt-6">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/intro")}
-              className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-purple-700 transition duration-300 py-3 px-8 text-lg rounded-full"
-            >
-              Learn More
-            </Button>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4 sm:px-6 py-12">
+      <div className="flex flex-col md:flex-row w-full max-w-6xl bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl shadow-gray-700/50 overflow-hidden">
+        {/* Left Panel */}
+        <div className="md:w-5/12 bg-gradient-to-br from-green-800 via-green-600 to-emerald-500 p-10 sm:p-16 flex flex-col justify-center text-white space-y-5">
+          <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 drop-shadow-lg">Welcome to the Health Hub</h1>
+          <p className="text-lg text-white/90 font-light leading-relaxed">Securely access your dashboard to manage critical health data, resources, and reports across the network.</p>
+          <Link to="/intro"><Button variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-green-700 transition duration-300 py-3 px-8 text-lg rounded-full shadow-md flex items-center"><TrendingUp size={20} className="mr-2" /> View Public Information</Button></Link>
         </div>
-
-        <div className="md:w-1/2 p-16 flex items-center justify-center">
-          <Card className="w-full max-w-md bg-gradient-to-br from-white/95 to-white/90 rounded-3xl shadow-3xl p-10 transform hover:scale-[1.02] transition-transform duration-500">
+        {/* Right Panel */}
+        <div className="md:w-7/12 p-10 sm:p-16 flex items-center justify-center">
+          <Card className="w-full max-w-md bg-white/95 rounded-2xl shadow-xl p-6 sm:p-10 transform hover:scale-[1.01] transition-transform duration-300">
             <CardHeader className="text-center">
-              <CardTitle className="text-4xl font-extrabold text-indigo-800">
-                Secure Login 🔒
-              </CardTitle>
-              <CardDescription className="text-lg text-gray-600 mt-2">
-                Enter your credentials to continue
-              </CardDescription>
+              <CardTitle className="text-3xl sm:text-4xl font-extrabold text-red-700">Secure Access 🔑</CardTitle>
+              <CardDescription className="text-md text-gray-600 mt-2">Enter your credentials and select your authorized role</CardDescription>
             </CardHeader>
-
             <CardContent>
-              <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-8 mt-6">
-                  <div className="flex flex-col space-y-3">
-                    <Label htmlFor="email" className="text-lg font-semibold text-gray-700">
-                      Email Address
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="e.g., agent@example.com"
-                      onChange={handleInputChange}
-                      className="rounded-xl px-5 py-3 text-lg border-2 border-gray-300 focus:border-pink-500 transition duration-300"
-                      required
-                    />
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-6">
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="role" className="text-md font-bold text-gray-800">System Role</Label>
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <select id="role" value={formData.role} onChange={handleInputChange} className="rounded-xl appearance-none w-full bg-white pl-10 pr-4 py-3 text-lg border-2 border-gray-300 focus:border-red-500 transition duration-300 cursor-pointer text-gray-700" required>
+                      {AVAILABLE_ROLES.map(role => <option key={role} value={role}>{role}</option>)}
+                    </select>
+                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">&#9660;</span>
                   </div>
-
-                  <div className="flex flex-col space-y-3">
-                    <Label htmlFor="password" className="text-lg font-semibold text-gray-700">
-                      Password
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter secret code"
-                      onChange={handleInputChange}
-                      className="rounded-xl px-5 py-3 text-lg border-2 border-gray-300 focus:border-pink-500 transition duration-300"
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-pink-500/50 hover:from-purple-700 hover:to-pink-700 hover:scale-[1.02] transition-all duration-300 text-xl tracking-wider uppercase"
-                  >
-                    {loading ? "Logging in..." : "Login"}
-                  </Button>
                 </div>
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="email" className="text-md font-bold text-gray-800">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <Input id="email" type="email" placeholder="e.g., manager@ministry.gov" value={formData.email} onChange={handleInputChange} className="rounded-xl pl-10 pr-4 py-3 text-lg border-2 border-gray-300 focus:border-red-500 transition duration-300 text-gray-800" required />
+                  </div>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <Label htmlFor="password" className="text-md font-bold text-gray-800">Password</Label>
+                  <div className="relative">
+                    <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <Input id="password" type="password" placeholder="Enter your secret key" value={formData.password} onChange={handleInputChange} className="rounded-xl pl-10 pr-4 py-3 text-lg border-2 border-gray-300 focus:border-red-500 transition duration-300 text-gray-800" required />
+                  </div>
+                </div>
+                <Button type="submit" disabled={loading} className="bg-gradient-to-r from-red-600 to-red-800 text-white font-extrabold py-3 mt-4 rounded-xl shadow-lg shadow-red-500/50 hover:from-red-700 hover:to-red-900 transition-all duration-300 text-xl tracking-wider uppercase flex items-center justify-center">
+                  <LogIn size={20} className="mr-2" /> {loading ? "Verifying Credentials..." : "Sign In Securely"}
+                </Button>
               </form>
             </CardContent>
           </Card>
