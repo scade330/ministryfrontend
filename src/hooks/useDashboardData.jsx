@@ -1,6 +1,7 @@
 // src/hooks/useDashboardData.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useUser } from "./useUser.jsx";
+import axios from "axios";
 
 export const TIME_FILTERS = [
   { key: "all", label: "All Time" },
@@ -18,46 +19,44 @@ export const useDashboardData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchDashboard = async () => {
+  // Axios instance for dashboard API
+  const api = axios.create({
+    baseURL: "http://localhost:8000/api",
+    headers: token
+      ? { Authorization: `Bearer ${token}` }
+      : undefined,
+    withCredentials: true, // send cookies if your backend needs them
+  });
+
+  const fetchDashboard = useCallback(async () => {
+    if (!token) {
+      setError("Not authenticated");
+      setData(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      if (!token) {
-        setError("Not authenticated");
-        setData(null);
-        return;
-      }
+      setError("");
 
-      const params = new URLSearchParams();
-      if (region) params.append("region", region);
-      if (district) params.append("district", district);
-      if (timeFilter) params.append("timeFilter", timeFilter);
-
-      const res = await fetch(`http://localhost:8000/api/dashboard/stats?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const res = await api.get("/dashboard/stats", {
+        params: { region, district, timeFilter },
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to load dashboard");
-      }
-
-      const json = await res.json();
-      setData(json);
-      setError("");
-    } catch (e) {
-      setError(e.message);
+      setData(res.data);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || err.message);
       setData(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, region, district, timeFilter]);
 
   useEffect(() => {
     fetchDashboard();
-  }, [region, district, timeFilter, token]);
+  }, [fetchDashboard]);
 
   return {
     data,

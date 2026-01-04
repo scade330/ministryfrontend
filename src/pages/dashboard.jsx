@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   PieChart, Pie, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -10,34 +10,40 @@ const COLORS = ["#2563eb", "#16a34a", "#f97316", "#dc2626", "#9333ea", "#0ea5e9"
 
 export default function Dashboard() {
   const {
-    data, loading, error,
-    region, setRegion,
-    district, setDistrict,
-    timeFilter, setTimeFilter,
+    data,
+    loading,
+    error,
+    region,
+    setRegion,
+    district,
+    setDistrict,
+    timeFilter,
+    setTimeFilter,
     TIME_FILTERS,
-    fetchDashboard
   } = useDashboardData();
 
   const [activeIndex, setActiveIndex] = useState(null);
-
   const onPieEnter = (_, index) => setActiveIndex(index);
-
-  // Refresh dashboard whenever filters change
-  useEffect(() => {
-    fetchDashboard();
-  }, [region, district, timeFilter]);
 
   if (loading) return <div className="p-10 text-gray-700">Loading dashboard…</div>;
   if (error) return <div className="p-10 text-red-600">{error}</div>;
   if (!data) return null;
 
-  const { totals = {}, genderChart = [], diagnosisChart = [], monthlyChart = [], regions = [], districts = [], alerts = [] } = data;
+  const {
+    totals = {},
+    genderChart = [],
+    diagnosisChart = [],
+    monthlyChart = [],
+    regions = [],
+    districts = [],
+    alerts = [],
+  } = data;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">📊 National EMR Dashboard</h1>
 
-      {/* KPI SUMMARY */}
+      {/* KPI Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow flex flex-col border-l-4 border-blue-600">
           <span className="text-gray-500">Total Patients</span>
@@ -57,24 +63,28 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ALERTS */}
-      <div className="mb-6">
-        <div className="bg-white p-4 rounded-lg shadow mb-2">
-          <h3 className="font-semibold mb-2">🚨 Public Health Alerts</h3>
-          {alerts.length === 0
-            ? <p className="text-green-600">✅ No critical alerts</p>
-            : alerts.map((a, i) => (
-                <div key={i} className="bg-red-100 text-red-800 p-2 rounded mb-1 font-medium">{a.message}</div>
-              ))
-          }
+      {/* Alerts */}
+      {alerts.length > 0 && (
+        <div className="mb-6">
+          <div className="bg-white p-4 rounded-lg shadow mb-2">
+            <h3 className="font-semibold mb-2">🚨 Public Health Alerts</h3>
+            {alerts.map((a, i) => (
+              <div key={i} className="bg-red-100 text-red-800 p-2 rounded mb-1 font-medium">
+                {a.message}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* FILTERS */}
+      {/* Filters */}
       <div className="sticky top-0 z-10 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
-          <p className="mb-2"><strong>Applied:</strong> {timeFilter} {region && `· ${region}`} {district && `/${district}`}</p>
+          <p className="mb-2">
+            <strong>Applied:</strong> {timeFilter} {region && `· ${region}`} {district && `/${district}`}
+          </p>
 
+          {/* Time Filter */}
           <h4 className="font-medium mb-2">Timeframe</h4>
           <div className="flex flex-wrap gap-2 mb-4">
             {TIME_FILTERS.map(f => (
@@ -88,21 +98,31 @@ export default function Dashboard() {
             ))}
           </div>
 
+          {/* Region Filter */}
           <h4 className="font-medium mb-2">Region</h4>
           <div className="flex flex-wrap gap-2 mb-4">
-            <button onClick={() => setRegion("")} className={`px-3 py-1 rounded ${region === "" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700"}`}>All Regions</button>
+            <button onClick={() => setRegion("")} className={`px-3 py-1 rounded ${region === "" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700"}`}>
+              All Regions
+            </button>
             {regions.map(r => (
-              <button key={r} onClick={() => setRegion(r)} className={`px-3 py-1 rounded ${region === r ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700"}`}>{r}</button>
+              <button key={r} onClick={() => setRegion(r)} className={`px-3 py-1 rounded ${region === r ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700"}`}>
+                {r}
+              </button>
             ))}
           </div>
 
+          {/* District Filter */}
           {region && (
             <>
               <h4 className="font-medium mb-2">District</h4>
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => setDistrict("")} className={`px-3 py-1 rounded ${district === "" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700"}`}>All Districts</button>
+                <button onClick={() => setDistrict("")} className={`px-3 py-1 rounded ${district === "" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700"}`}>
+                  All Districts
+                </button>
                 {districts.map(d => (
-                  <button key={d} onClick={() => setDistrict(d)} className={`px-3 py-1 rounded ${district === d ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700"}`}>{d}</button>
+                  <button key={d} onClick={() => setDistrict(d)} className={`px-3 py-1 rounded ${district === d ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700"}`}>
+                    {d}
+                  </button>
                 ))}
               </div>
             </>
@@ -110,7 +130,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* CHARTS */}
+      {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Gender Pie Chart */}
         <div className="bg-white p-4 rounded-lg shadow">
