@@ -20,13 +20,14 @@ export const useDashboardData = () => {
   const [error, setError] = useState("");
 
   // Axios instance for dashboard API
-  const api = axios.create({
-    baseURL: "http://localhost:8000/api",
-    headers: token
-      ? { Authorization: `Bearer ${token}` }
-      : undefined,
-    withCredentials: true, // send cookies if your backend needs them
-  });
+ const api = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  headers: token
+    ? { Authorization: `Bearer ${token}` }
+    : undefined,
+  withCredentials: true,
+});
+
 
   const fetchDashboard = useCallback(async () => {
     if (!token) {
