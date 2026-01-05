@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -62,14 +68,15 @@ export default function LoginPage() {
           password: formData.password,
         },
         {
-          withCredentials: true, // required for cookies/JWT
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
       const { user: loggedInUser, token, expiresIn } = res.data;
 
-      if (!loggedInUser) {
+      if (!loggedInUser || !token) {
         toast.error("Login failed");
         return;
       }
