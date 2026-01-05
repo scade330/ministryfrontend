@@ -11,7 +11,7 @@ import CenterPage from './pages/CenterPage.jsx';
 
 import { UserProvider } from './hooks/useUser.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
-import Homepage from './pages/homepage.jsx';
+import Homepage from './pages/Homepage.jsx';
 
 const router = createBrowserRouter([
   {
