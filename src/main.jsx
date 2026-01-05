@@ -8,10 +8,10 @@ import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import IntroPage from './pages/IntroPage.jsx';
 import CenterPage from './pages/CenterPage.jsx';
-import Dashboard from './pages/Dashboard.jsx'
 
 import { UserProvider } from './hooks/useUser.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+import Homepage from './pages/homepage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
         path: "dashboard", 
         element: (
           <ProtectedRoute>
-            <Dashboard />
+            <Homepage />
           </ProtectedRoute>
         )
       },
