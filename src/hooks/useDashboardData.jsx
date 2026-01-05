@@ -20,14 +20,11 @@ export const useDashboardData = () => {
   const [error, setError] = useState("");
 
   // Axios instance for dashboard API
- const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
-  headers: token
-    ? { Authorization: `Bearer ${token}` }
-    : undefined,
-  withCredentials: true,
-});
-
+  const api = axios.create({
+    baseURL: `${import.meta.env.VITE_API_URL?.replace(/\/$/, "")}/api`,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    withCredentials: true, // cookies/auth headers
+  });
 
   const fetchDashboard = useCallback(async () => {
     if (!token) {
@@ -42,13 +39,17 @@ export const useDashboardData = () => {
       setError("");
 
       const res = await api.get("/dashboard/stats", {
-        params: { region, district, timeFilter },
+        params: {
+          ...(region && { region }),
+          ...(district && { district }),
+          timeFilter,
+        },
       });
 
       setData(res.data);
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || err.message);
+      console.error("Dashboard fetch error:", err);
+      setError(err.response?.data?.error || err.response?.data?.message || err.message);
       setData(null);
     } finally {
       setLoading(false);
